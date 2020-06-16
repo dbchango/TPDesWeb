@@ -5,15 +5,22 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 
 
-admin.initializeApp(functions.config().firebase);
+admin.initializeApp({
+    credential: admin.credential.cert(require("../../serviceAccountKey.json")),
+    databaseURL: "https://nrc-7828-4ad7b.firebaseio.com"
+  });
 /*
 
 admin.initializeApp(functions.config().firebase);
 */
 const db = admin.firestore();
+
 const app = express();
 const main = express();
+
 const collectionPersons = "persons";
+
+
 
 main.use("/api", app);
 main.use(bodyParser.json());
