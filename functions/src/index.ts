@@ -9,10 +9,7 @@ admin.initializeApp({
     credential: admin.credential.cert(require("../../serviceAccountKey.json")),
     databaseURL: "https://nrc-7828-4ad7b.firebaseio.com"
   });
-/*
 
-admin.initializeApp(functions.config().firebase);
-*/
 const db = admin.firestore();
 
 const app = express();
