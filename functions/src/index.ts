@@ -10,6 +10,7 @@ admin.initializeApp({
     databaseURL: "https://nrc-7828-4ad7b.firebaseio.com"
   });
 
+
 const db = admin.firestore();
 db.settings({ignoreUndefinedProperties : true});
 
