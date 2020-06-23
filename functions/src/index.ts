@@ -5,10 +5,8 @@ import * as bodyParser from 'body-parser';
 
 //=========================CONFIG===========================//
 
-admin.initializeApp({
-    credential: admin.credential.cert(require("../../serviceAccountKey.json")),
-    databaseURL: "https://nrc-7828-4ad7b.firebaseio.com"
-  });
+
+admin.initializeApp(functions.config().firebase);
 
 const db = admin.firestore();
 db.settings({ignoreUndefinedProperties : true});
