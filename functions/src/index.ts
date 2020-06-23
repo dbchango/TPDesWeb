@@ -11,11 +11,14 @@ admin.initializeApp({
   });
 
 const db = admin.firestore();
-db.settings({ignoreUndefinedProperties:true});
+db.settings({ignoreUndefinedProperties : true});
+
 const main = express();
 main.use(bodyParser.json());
 main.use(bodyParser.urlencoded({extended: false}));
 main.use('/api', require('./person').routes);
+main.use('/api', require('./subject').routes);
+main.use('/api', require('./registration').routes);
 
 export const api = functions.https.onRequest(main);
-export { db };//exportacion de la base de datos 
+export { db };

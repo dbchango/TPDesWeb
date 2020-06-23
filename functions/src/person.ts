@@ -4,11 +4,11 @@ import * as Router from 'express';
 
 const routes = Router();
 const db = main.db;
-const collection = "persons"
+const collection = "persons";
 
 interface Person {
     name: string,
-    surname: string, 
+    surname: string,
     birth: string,
     place: string,
     email: string,
@@ -17,7 +17,7 @@ interface Person {
 }
 
 routes.post('/persons', async (req, res) => {           
-    try{      
+    try{            
         const newPerson : Person = {
             name: req.body['name'],
             surname: req.body['surname'],
@@ -25,41 +25,37 @@ routes.post('/persons', async (req, res) => {
             place: req.body['place'],
             email: req.body['email'],
             address: req.body['address'],
-            phone: req.body['phone'],
-        }
-        const newAdded = await firebaseHelper.firestore
-                            .createNewDocument(db, collection, newPerson);
-        res.status(201).send(`Person was added to collection with id ${newAdded.id}`);
+            phone: req.body['phone']
+        };      
+        const personAdded = await firebaseHelper.firestore
+                                .createNewDocument(db, collection, newPerson);
+        res.status(201).send(`Person was added to collection with id ${personAdded.id}`);
     }
     catch(err){
         res.status(400).send(`An error has ocurred ${err}`)
     }
 });
 
-routes.get('/persons/:id', async(req, res) => {
-    let varId = req.params.id;
-    try{
-        const docObtained = await firebaseHelper.firestore.getDocument(db, collection, varId);
-            res.status(201).send(docObtained);
-    }catch(err){
-        res.status(400).send(`An error has ocurred ${err}`)
-    }
+routes.get('/persons/:id', (req,res)=>{    
+    firebaseHelper.firestore
+        .getDocument(db, collection, req.params.id)
+        .then(doc => res.status(200).send(doc))
+        .catch(err => res.status(400).send(`An error has ocurred ${err}`));
 });
 
 routes.patch('/persons/:id', async(req, res) => {
-    try{      
-        let id = req.params.id;
-        const Person : Person = {
+    try{       
+        var id = req.params.id;
+        const person : Person = {
             name: req.body['name'],
             surname: req.body['surname'],
             birth: req.body['birth'],
             place: req.body['place'],
             email: req.body['email'],
             address: req.body['address'],
-            phone: req.body['phone'],
-        };  
-        await firebaseHelper.firestore.updateDocument(db, 
-            collection, id, Person);
+            phone: req.body['phone']
+        }; 
+        await firebaseHelper.firestore.updateDocument(db, collection, id, person);
         res.status(200).send(`Person with id ${id} was updated`);
     }
     catch(err){
@@ -68,18 +64,15 @@ routes.patch('/persons/:id', async(req, res) => {
 });
 
 routes.delete('/persons/:id', async (request, response) => {
-    let id = request.params.id;
     try{        
-        const docDeleted = await firebaseHelper.firestore.deleteDocument(db, 
-            collection, id);
-        response.status(200).send(`Person with ${docDeleted} was deleted`);
+        let id = request.params.id;
+        await firebaseHelper.firestore.deleteDocument(db, collection, id);
+        response.status(200).send(`Person document with id ${id} was deleted`);
     }
     catch(err){
         response.status(400).send(`An error has ocurred ${err}`);
     }
 });
-
-
 
 routes.get('/persons', (req, res) =>{     
     firebaseHelper.firestore.backup(db, collection)
