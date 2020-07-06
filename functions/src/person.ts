@@ -7,6 +7,7 @@ const db = main.db;
 const collection = "persons";
 
 interface Person {
+    idperson?: string,
     name: string,
     surname: string,
     birth: string,
@@ -15,6 +16,22 @@ interface Person {
     address: string,
     phone: string
 }
+
+function getPerson(id: string, data:any){
+    let object : Person = {
+        idperson: id,
+        name: data.name,
+        surname: data.surname,
+        birth: data.birth,
+        place: data.place,
+        email: data.email,
+        address: data.address,
+        phone: data.phone
+
+    }
+    return object
+}
+
 
 routes.post('/persons', async (req, res) => {           
     try{            
@@ -29,18 +46,18 @@ routes.post('/persons', async (req, res) => {
         };      
         const personAdded = await firebaseHelper.firestore
                                 .createNewDocument(db, collection, newPerson);
-        res.status(201).send(`Person was added to collection with id ${personAdded.id}`);
+        res.status(201).json(main.Message('Persona aniadida', `Persona con el id: ${personAdded.id} aniadida`, 'success'));
     }
     catch(err){
-        res.status(400).send(`An error has ocurred ${err}`)
+        res.status(400).json(main.Message('Un error ha ocurrido',`${err}`, 'error'))
     }
 });
 
 routes.get('/persons/:id', (req,res)=>{    
     firebaseHelper.firestore
         .getDocument(db, collection, req.params.id)
-        .then(doc => res.status(200).send(doc))
-        .catch(err => res.status(400).send(`An error has ocurred ${err}`));
+        .then(doc => res.status(200).json(getPerson(doc.id, doc)))
+        .catch(err => res.status(400).json(main.Message('Un error ha ocurrido',`${err}`, 'error')));
 });
 
 routes.patch('/persons/:id', async(req, res) => {
@@ -56,10 +73,10 @@ routes.patch('/persons/:id', async(req, res) => {
             phone: req.body['phone']
         }; 
         await firebaseHelper.firestore.updateDocument(db, collection, id, person);
-        res.status(200).send(`Person with id ${id} was updated`);
+        res.status(200).json(main.Message('Persona modificada', `Persona con el id: ${id} modificada`, 'success') );
     }
     catch(err){
-        res.status(400).send(`An error has ocurred ${err}`);
+        res.status(400).json(main.Message('Un error ha ocurrido',`${err}`, 'error'));
     }
 });
 
@@ -70,14 +87,16 @@ routes.delete('/persons/:id', async (request, response) => {
         response.status(200).send(`Person document with id ${id} was deleted`);
     }
     catch(err){
-        response.status(400).send(`An error has ocurred ${err}`);
+        response.status(400).json(main.Message('Un error ha ocurrido',`${err}`, 'error'));
     }
 });
 
 routes.get('/persons', (req, res) =>{     
-    firebaseHelper.firestore.backup(db, collection)
-        .then(result => res.status(200).send(result))
-        .catch(err => res.status(400).send(`An error has ocurred ${err}`));
+    db.collection(collection).get()
+        .then(result => {
+            res.status(200).json(result.docs.map(doc=>getPerson(doc.id, doc.data())));
+        })
+        .catch(err => res.json(main.Message('Un error ha ocurrido',`${err}`, 'error')));
 });
 
 export { routes };
